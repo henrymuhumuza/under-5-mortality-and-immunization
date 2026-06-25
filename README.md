@@ -39,3 +39,4 @@ Ecological panel study investigating associations between routine immunization c
 ## Corresponding Author
 
 Henry Muhumuza
+Email: contact@henrymuhumuza.com

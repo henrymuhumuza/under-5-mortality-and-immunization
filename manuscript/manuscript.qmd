@@ -30,16 +30,28 @@ format:
     embed-resources: true
   docx:
     toc: true
+    toc-depth: 2
     number-sections: true
+    fig-width: 6.4
+    fig-height: 4.2
   pdf:
     toc: true
+    toc-depth: 2
     number-sections: true
     documentclass: article
     papersize: a4
     geometry:
-      - margin=1in
-    fig-width: 7
-    fig-height: 5
+      - top=0.85in
+      - bottom=0.9in
+      - left=0.85in
+      - right=0.85in
+    fig-width: 6.6
+    fig-height: 4.5
+    colorlinks: true
+    linkcolor: UNICEFBlue
+    urlcolor: UNICEFBlue
+    citecolor: UNICEFBlue
+    include-in-header: pdf-preamble.tex
 
 bibliography: references.bib
 csl: vancouver-superscript.csl
@@ -121,6 +133,13 @@ pretty_table <- function(df, caption = NULL, digits = 2) {
   # Keep the enhanced styling for HTML and return a native Pandoc table for DOCX/PDF.
   if (knitr::is_html_output()) {
     kableExtra::kable_styling(table, full_width = FALSE, position = "left")
+  } else if (knitr::is_latex_output()) {
+    kableExtra::kable_styling(
+      table,
+      latex_options = c("hold_position", "scale_down"),
+      font_size = 8,
+      position = "left"
+    )
   } else {
     table
   }

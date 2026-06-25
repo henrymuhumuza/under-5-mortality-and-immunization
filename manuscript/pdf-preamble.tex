@@ -1,0 +1,40 @@
+\usepackage{xcolor}
+\definecolor{UNICEFBlue}{HTML}{0099D8}
+\definecolor{UNICEFDark}{HTML}{1C3F95}
+\definecolor{UNICEFSoft}{HTML}{EAF7FC}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{etoolbox}
+\usepackage{microtype}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\textcolor{UNICEFDark}{Routine immunization and under-five mortality}}
+\rhead{\textcolor{UNICEFBlue}{\thepage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{UNICEFBlue}\leaders\hrule height \headrulewidth\hfill}}
+
+\titleformat{\section}
+  {\Large\bfseries\color{UNICEFDark}}
+  {\thesection}{0.75em}{}
+  [\vspace{0.15em}{\color{UNICEFBlue}\titlerule[0.6pt]}]
+\titleformat{\subsection}
+  {\large\bfseries\color{UNICEFDark}}
+  {\thesubsection}{0.75em}{}
+\titleformat{\subsubsection}
+  {\normalsize\bfseries\color{UNICEFDark}}
+  {\thesubsubsection}{0.75em}{}
+
+\captionsetup{
+  labelfont={bf,color=UNICEFDark},
+  textfont=small,
+  width=0.94\linewidth
+}
+
+\AtBeginEnvironment{longtable}{\small}
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.12}

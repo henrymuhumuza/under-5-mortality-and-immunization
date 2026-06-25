@@ -6,6 +6,7 @@
 *.toc
 *.out
 *.tex
+!manuscript/pdf-preamble.tex
 *.lof
 *.lot
 *.synctex.gz
