@@ -71,6 +71,9 @@ library(dplyr)
 library(knitr)
 library(kableExtra)
 library(stringr)
+if (knitr::pandoc_to("docx")) {
+  library(flextable)
+}
 
 # Paths are relative to the manuscript/ folder.
 # Keep this file at: IMMUNIZATION STUDY/manuscript/manuscript.qmd
@@ -126,6 +129,38 @@ pretty_table <- function(df, caption = NULL, digits = 2) {
     country_year_observations = "Country-year observations",
     .default = names(df)
   )
+
+  if (knitr::pandoc_to("docx")) {
+    docx_df <- df
+    numeric_columns <- names(docx_df)[vapply(docx_df, is.numeric, logical(1))]
+    for (column in numeric_columns) {
+      docx_df[[column]] <- round(docx_df[[column]], digits)
+    }
+
+    text_columns <- intersect(c("Measure", "Variable", "Term", "Country", "Country code (ISO3)"), names(docx_df))
+    ft <- flextable::flextable(docx_df)
+    ft <- flextable::theme_booktabs(ft)
+    ft <- flextable::font(ft, fontname = "Arial", part = "all")
+    ft <- flextable::fontsize(ft, size = 8.5, part = "all")
+    ft <- flextable::bold(ft, part = "header")
+    ft <- flextable::bg(ft, bg = "#0099D8", part = "header")
+    ft <- flextable::color(ft, color = "white", part = "header")
+    ft <- flextable::bg(ft, i = seq(1, nrow(docx_df), by = 2), bg = "#F2F6F8", part = "body")
+    ft <- flextable::color(ft, color = "#1F2933", part = "body")
+    ft <- flextable::align(ft, align = "center", part = "header")
+    ft <- flextable::align(ft, j = numeric_columns, align = "center", part = "body")
+    if (length(text_columns) > 0) {
+      ft <- flextable::align(ft, j = text_columns, align = "left", part = "body")
+    }
+    ft <- flextable::valign(ft, valign = "top", part = "all")
+    ft <- flextable::padding(ft, padding = 3, part = "all")
+    ft <- flextable::border_outer(ft, border = officer::fp_border(color = "#D8E3EA", width = 0.75), part = "all")
+    ft <- flextable::border_inner_h(ft, border = officer::fp_border(color = "#E6EDF2", width = 0.5), part = "all")
+    ft <- flextable::set_table_properties(ft, layout = "autofit", width = 1)
+    ft <- flextable::autofit(ft)
+    ft <- flextable::fit_to_width(ft, max_width = 6.6)
+    return(ft)
+  }
 
   table <- knitr::kable(df, caption = caption, digits = digits, booktabs = TRUE)
 
