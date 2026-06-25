@@ -1,9 +1,9 @@
 ---
 title: "Association Between Routine Childhood Immunization Coverage and Under-Five Mortality in Sub-Saharan Africa: An Ecological Panel Study, 2000–2024"
 author:
-  - name: "Henry Muhumuza"
-    affiliation: "Independent Researcher, Kampala, Uganda"
-    email: "contact@henrymuhumuza.com"
+  - "Henry Muhumuza¹*"
+  - "¹ School of Medicine, College of Health Sciences, Makerere University, Kampala, Uganda"
+  - "Correspondence: contact@henrymuhumuza.com"
 date: today
 abstract: |
   **Background:** Under-five mortality remains a major public health challenge in sub-Saharan Africa. Across the included sub-Saharan African countries, the mean under-five mortality rate declined by approximately 57%, from 131.0 deaths per 1,000 live births in 2000 to 56.6 deaths per 1,000 live births in 2024, indicating substantial progress but a persistently high regional burden. Routine childhood immunization is among the most effective child survival interventions, but the long-term ecological relationship between vaccine coverage and under-five mortality across the region remains important to quantify.
