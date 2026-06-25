@@ -520,7 +520,7 @@ Not applicable.
 
 ## Availability of data and materials
 
-The datasets used in this study are publicly available from UNICEF Data and the World Bank World Development Indicators database. The cleaned analytic dataset, analysis scripts and supporting materials are publicly available in the project GitHub repository: https://github.com/henrymuhumuza/under-5-mortality-and-immunization.
+The datasets used in this study are publicly available from UNICEF Data and the World Bank World Development Indicators database. The cleaned analytic dataset, analysis scripts and supporting materials are publicly available in the [project GitHub repository](https://github.com/henrymuhumuza/under-5-mortality-and-immunization).
 
 ## Competing interests
 
