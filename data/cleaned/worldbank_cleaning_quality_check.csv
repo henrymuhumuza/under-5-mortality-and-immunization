@@ -1,0 +1,9 @@
+dataset,rows,countries,min_year,max_year,missing_iso3,duplicate_keys,missing_values,pct_missing
+u5mr,6650,266,2000,2024,0,0,550,8.3
+gdp_pc,6650,266,2000,2024,0,0,217,3.3
+health_exp_pc,6650,266,2000,2024,0,0,937,14.1
+fertility,6650,266,2000,2024,0,0,25,0.4
+female_secondary_enrollment,6650,266,2000,2024,0,0,1983,29.8
+basic_water,6650,266,2000,2024,0,0,252,3.8
+basic_sanitation,6650,266,2000,2024,0,0,287,4.3
+physicians_per_1000,6650,266,2000,2024,0,0,3667,55.1

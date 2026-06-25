@@ -1,0 +1,598 @@
+---
+title: "Association Between Routine Childhood Immunization Coverage and Under-Five Mortality in Sub-Saharan Africa: An Ecological Panel Study, 2000–2024"
+author:
+  - name: "Henry Muhumuza"
+    affiliation: "Independent Researcher, Kampala, Uganda"
+    email: "contact@henrymuhumuza.com"
+date: today
+abstract: |
+  **Background:** Under-five mortality remains a major public health challenge in sub-Saharan Africa. Across the included sub-Saharan African countries, the mean under-five mortality rate declined by approximately 57%, from 131.0 deaths per 1,000 live births in 2000 to 56.6 deaths per 1,000 live births in 2024, indicating substantial progress but a persistently high regional burden. Routine childhood immunization is among the most effective child survival interventions, but the long-term ecological relationship between vaccine coverage and under-five mortality across the region remains important to quantify.
+
+  **Methods:** We conducted an ecological panel study using annual country-level data from sub-Saharan African countries between 2000 and 2024. Under-five mortality rate, expressed as deaths per 1,000 live births, was the outcome. Immunization coverage indicators included DTP3, MCV1 and Pol3 coverage. Covariates included GDP per capita, current health expenditure per capita, total fertility rate, access to basic drinking water and access to basic sanitation. Multivariable linear regression models were fitted separately for each antigen. Country and year fixed-effects models were used to account for unobserved country-level heterogeneity and secular trends. Sensitivity analyses included restricted analyses excluding relatively wealthier sub-Saharan African countries and lagged exposure models. The assembled panel covered 2000--2024; the complete-case primary models used observations through 2023 because current health expenditure per capita was unavailable for all included countries in 2024.
+
+  **Results:** The assembled panel included 49 sub-Saharan African countries and 1,225 country-year observations; 1,108 complete observations from 48 countries were included in the primary models. In the adjusted model, each 1-percentage-point increase in DTP3 coverage was associated with 0.97 fewer under-five deaths per 1,000 live births (95% confidence interval [CI], −1.30 to −0.64), equivalent to approximately 9.7 fewer deaths per 1,000 live births for a 10-percentage-point increase in coverage. In the country-and-year fixed-effects model, higher DTP3 coverage within countries over time was associated with lower under-five mortality: each 1-percentage-point increase was associated with 0.28 fewer deaths per 1,000 live births (95% CI, −0.563 to −0.002), equivalent to approximately 2.8 fewer deaths per 1,000 live births for a 10-percentage-point increase in DTP3 coverage.
+
+  **Analytic sample:** The assembled dataset covered 2000--2024, but the primary complete-case models effectively covered 2000--2023: all 49 2024 country observations lacked current health expenditure per capita, a required covariate.
+
+  **Conclusions:** Higher routine childhood immunization coverage, particularly DTP3 coverage, was consistently associated with lower under-five mortality at the country-year level. Strengthening routine immunization should remain part of integrated child-survival strategies alongside improvements in health systems and social determinants of health.
+
+  **Keywords:** under-five mortality; immunization; DTP3; measles vaccination; polio vaccination; sub-Saharan Africa; ecological study; panel data
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    theme: cosmo
+    code-fold: true
+    fig-width: 8
+    fig-height: 5
+    smooth-scroll: true
+    embed-resources: true
+  docx:
+    toc: true
+    number-sections: true
+  pdf:
+    toc: true
+    number-sections: true
+    documentclass: article
+    papersize: a4
+    geometry:
+      - margin=1in
+    fig-width: 7
+    fig-height: 5
+
+bibliography: references.bib
+csl: vancouver-superscript.csl
+link-citations: true
+execute:
+  echo: false
+  warning: false
+  message: false
+editor: visual
+---
+
+```{r setup}
+#| include: false
+
+library(readr)
+library(dplyr)
+library(knitr)
+library(kableExtra)
+library(stringr)
+
+# Paths are relative to the manuscript/ folder.
+# Keep this file at: IMMUNIZATION STUDY/manuscript/manuscript.qmd
+# Keep figures at: IMMUNIZATION STUDY/figures/
+# Keep tables at: IMMUNIZATION STUDY/tables/
+# Keep processed data at: IMMUNIZATION STUDY/data/processed/
+
+table_path <- "../tables"
+figure_path <- "../figures"
+data_path <- "../data/processed"
+
+safe_read_csv <- function(path) {
+  if (file.exists(path)) {
+    read_csv(path, show_col_types = FALSE)
+  } else {
+    tibble(note = paste("File not found:", path))
+  }
+}
+
+safe_include_graphics <- function(path) {
+  if (file.exists(path)) {
+    knitr::include_graphics(path)
+  } else {
+    cat(paste0("**Figure file not found:** `", path, "`"))
+  }
+}
+
+pretty_table <- function(df, caption = NULL, digits = 2) {
+  measure_labels <- c(
+    u5mr = "Under-five mortality rate (per 1,000 live births)",
+    dtp3 = "DTP3 coverage (%)",
+    mcv1 = "MCV1 coverage (%)",
+    pol3 = "Pol3 coverage (%)",
+    gdp_pc = "GDP per capita (current US$)",
+    health_exp_pc = "Current health expenditure per capita (current US$)",
+    fertility = "Total fertility rate (births per woman)",
+    basic_water = "Population using at least basic drinking-water services (%)",
+    basic_sanitation = "Population using at least basic sanitation services (%)",
+    physicians_per_1000 = "Physicians (per 1,000 population)",
+    female_secondary_enrollment = "Female secondary school enrolment (%)",
+    iso3 = "Country code (ISO3)",
+    year = "Year"
+  )
+
+  if ("variable" %in% names(df)) {
+    df$variable <- dplyr::recode(df$variable, !!!measure_labels, .default = df$variable)
+  }
+  names(df) <- dplyr::recode(names(df),
+    variable = "Measure", n = "Observations", mean = "Mean",
+    sd = "Standard deviation", median = "Median", min = "Minimum", max = "Maximum",
+    missing = "Missing values", pct_missing = "Missing (%)", iso3 = "Country code (ISO3)",
+    countries = "Countries", first_year = "First year", last_year = "Last year",
+    country_year_observations = "Country-year observations",
+    .default = names(df)
+  )
+
+  table <- knitr::kable(df, caption = caption, digits = digits, booktabs = TRUE)
+
+  # kableExtra styling produces HTML widgets, which Word cannot render.
+  # Keep the enhanced styling for HTML and return a native Pandoc table for DOCX/PDF.
+  if (knitr::is_html_output()) {
+    kableExtra::kable_styling(table, full_width = FALSE, position = "left")
+  } else {
+    table
+  }
+}
+
+format_model_table <- function(df) {
+  model_columns <- setdiff(names(df), c("part", "term", "statistic"))
+  term_labels <- c(
+    "(Intercept)" = "Intercept",
+    dtp3 = "DTP3 coverage (per 1 percentage-point increase)",
+    mcv1 = "MCV1 coverage (per 1 percentage-point increase)",
+    pol3 = "Pol3 coverage (per 1 percentage-point increase)",
+    log_gdp_pc = "Log GDP per capita",
+    log_health_exp_pc = "Log current health expenditure per capita",
+    fertility = "Total fertility rate (births per woman)",
+    basic_water = "Basic drinking-water access (percentage points)",
+    basic_sanitation = "Basic sanitation access (percentage points)",
+    "Num.Obs." = "Observations", R2 = "R-squared", RMSE = "Root mean squared error",
+    "FE: iso3" = "Country fixed effects", "FE: year" = "Year fixed effects"
+  )
+  estimates <- df |>
+    filter(part == "estimates", statistic == "estimate") |>
+    select(term, all_of(model_columns))
+  confidence_intervals <- df |>
+    filter(part == "estimates", statistic == "conf.int") |>
+    select(term, all_of(model_columns))
+  output <- estimates
+  for (column in model_columns) {
+    estimate <- estimates[[column]]
+    ci <- confidence_intervals[[column]]
+    output[[column]] <- ifelse(
+      is.na(estimate) | estimate == "", "",
+      ifelse(is.na(ci) | ci == "", estimate, paste0(estimate, " ", ci))
+    )
+  }
+  goodness_of_fit <- df |>
+    filter(part == "gof") |>
+    select(term, all_of(model_columns))
+  output <- bind_rows(output, goodness_of_fit)
+  for (column in model_columns) {
+    output[[column]][is.na(output[[column]])] <- ""
+    output[[column]] <- dplyr::recode(output[[column]], X = "Yes", .default = output[[column]])
+  }
+  output$term <- dplyr::recode(output$term, !!!term_labels, .default = output$term)
+  names(output)[1] <- "Variable"
+  names(output) <- dplyr::recode(names(output),
+    "DTP3 adjusted" = "DTP3 adjusted model", "MCV1 adjusted" = "MCV1 adjusted model",
+    "Pol3 adjusted" = "Pol3 adjusted model", "DTP3 FE" = "DTP3 fixed-effects model",
+    "MCV1 FE" = "MCV1 fixed-effects model", "Pol3 FE" = "Pol3 fixed-effects model",
+    "Main adjusted" = "Main adjusted model", "Main FE" = "Main fixed-effects model",
+    "Restricted adjusted" = "Restricted adjusted model", "Restricted FE" = "Restricted fixed-effects model",
+    "Lagged adjusted" = "Lagged adjusted model", "Lagged FE" = "Lagged fixed-effects model",
+    .default = names(output)
+  )
+  output
+}
+```
+
+# Introduction
+
+Under-five mortality remains one of the most widely used indicators of child health, health-system performance and social development. Although global child survival has improved substantially over recent decades, the burden of mortality among children younger than five years remains disproportionately concentrated in low- and middle-income countries, particularly in sub-Saharan Africa. Across the included sub-Saharan African countries, the mean under-five mortality rate declined by approximately 57%, from 131.0 deaths per 1,000 live births in 2000 to 56.6 deaths per 1,000 live births in 2024. This decline reflects major progress, but the 2024 average remains more than twice the Sustainable Development Goal target of reducing under-five mortality to 25 deaths per 1,000 live births or lower in all countries by 2030, and progress has been uneven across countries and over time.[@unigme2025]
+
+Routine childhood immunization is one of the most effective and cost-effective public health interventions. Vaccination prevents deaths from vaccine-preventable diseases such as measles, pertussis, diphtheria, tetanus and poliomyelitis, while also serving as a marker of access to preventive child-health services.[@shattock2024epi] Coverage with the third dose of diphtheria-tetanus-pertussis-containing vaccine (DTP3) is commonly used as an indicator of routine immunization system performance because it reflects not only initial access to immunization services but also the ability of the health system to retain children through a multi-dose schedule.[@who_unicef_wuenic; @unicef_immunization]
+
+Measles-containing vaccine first dose (MCV1) and third dose of polio vaccine (Pol3) are also important indicators of routine immunization performance. Measles vaccination is especially relevant to child survival because measles is highly transmissible and can cause severe complications, especially in settings with malnutrition, weak health systems and limited access to timely care. Polio vaccination reflects long-standing routine immunization and disease eradication efforts.[@who_measles; @gavi_impact]
+
+Despite the established benefits of vaccines, vaccine coverage remains uneven across sub-Saharan Africa.[@ikilezi2020dtp3; @gbd2025vaccinecoverage] Some countries have achieved high and sustained coverage, while others continue to experience stagnation, interruptions, subnational inequities and missed children. Coverage disruptions may arise from conflict, weak health systems, supply-chain failures, low service accessibility, health-worker shortages, vaccine hesitancy, misinformation and competing public health priorities.[@who_ia2030; @unicef_state_children; @nashwan2025zerodose]
+
+The relationship between immunization coverage and under-five mortality is biologically plausible and policy-relevant. However, at the ecological level, this relationship is influenced by broader socioeconomic and health-system factors including national income, health expenditure, fertility, water access and sanitation access. Wealthier countries may have both higher vaccine coverage and lower mortality because of broader health-system and socioeconomic advantages. Similarly, fertility patterns, access to safe water and sanitation, and public health investment may confound the association between routine immunization coverage and child survival. Therefore, analyses of immunization coverage and under-five mortality should account for these contextual factors.
+
+Many previous studies have examined immunization and child mortality using cross-sectional surveys, country-specific analyses or shorter time horizons. Fewer studies have evaluated long-term country-year panel associations across sub-Saharan Africa using standardized, publicly available datasets over a 25-year period. Such an approach allows comparison of between-country differences and within-country changes over time, while fixed-effects models can help account for unobserved time-invariant country characteristics and shared secular trends.
+
+This study therefore aimed to evaluate the association between routine childhood immunization coverage and under-five mortality in sub-Saharan Africa from 2000 to 2024. The primary exposure was DTP3 coverage, with MCV1 and Pol3 coverage evaluated in separate secondary models. We adjusted for key socioeconomic, demographic and environmental covariates and conducted fixed-effects and sensitivity analyses to assess robustness of findings.
+
+# Methods
+
+## Study design
+
+We conducted an ecological panel study using annual country-level data from sub-Saharan African countries between 2000 and 2024. The unit of analysis was the country-year. Each observation represented one country in one calendar year.
+
+This design was selected because the study question concerned population-level associations between routine immunization coverage and under-five mortality across countries and over time. The study did not involve individual participants, primary data collection, intervention assignment or access to identifiable personal information.
+
+## Study setting and population
+
+The study population comprised countries classified geographically as sub-Saharan African countries for the purposes of this analysis. The country list included countries from Eastern, Western, Central and Southern Africa. The full country list is provided in Supplementary Table S3.
+
+The study period was 2000–2024. This interval was selected to capture long-term changes in routine immunization coverage and under-five mortality during the Millennium Development Goal and Sustainable Development Goal eras, while maintaining broad availability of country-year data across core variables.
+
+```{r study-sample-summary}
+#| label: tbl-study-sample-summary
+#| tbl-cap: "Study sample summary."
+
+panel <- safe_read_csv(file.path(data_path, "immunization_panel_ssa_2000_2024.csv"))
+
+if (all(c("iso3", "year") %in% names(panel))) {
+  sample_summary <- panel |>
+    summarise(
+      countries = n_distinct(iso3),
+      first_year = min(year, na.rm = TRUE),
+      last_year = max(year, na.rm = TRUE),
+      country_year_observations = n()
+    )
+  pretty_table(sample_summary)
+} else {
+  pretty_table(panel)
+}
+```
+
+## Data sources
+
+Immunization coverage data were obtained from UNICEF coverage-by-antigen datasets, based on WHO/UNICEF Estimates of National Immunization Coverage. The vaccine coverage indicators used were DTP3, MCV1 and Pol3 coverage, expressed as percentages.[@who_unicef_wuenic; @unicef_immunization]
+
+Under-five mortality and covariate data were obtained from the World Bank World Development Indicators database. The outcome variable was under-five mortality rate per 1,000 live births. Covariates included GDP per capita, current health expenditure per capita, total fertility rate, access to basic drinking water services and access to basic sanitation services.[@worldbank_wdi]
+
+All datasets were publicly available and downloaded in spreadsheet format. Raw data files were preserved unmodified. Data cleaning and analysis were conducted using scripted R workflows to support reproducibility.
+
+## Variables
+
+### Outcome variable
+
+The primary outcome was under-five mortality rate, defined as the probability of dying before age five years, expressed per 1,000 live births. This variable was treated as a continuous outcome.
+
+### Exposure variables
+
+The primary exposure was DTP3 coverage, expressed as the percentage of the target population receiving the third dose of diphtheria-tetanus-pertussis-containing vaccine. DTP3 was selected as the main exposure because it is widely used as a tracer indicator of routine immunization system performance.
+
+Secondary exposure variables were MCV1 coverage and Pol3 coverage. These were analyzed in separate models rather than simultaneously in the main model because vaccine coverage indicators are expected to be highly correlated and simultaneous inclusion may produce multicollinearity and unstable coefficient estimates.
+
+### Covariates
+
+The main adjusted models included the following covariates:
+
+- GDP per capita, current US dollars;
+- current health expenditure per capita, current US dollars;
+- total fertility rate, births per woman;
+- population using at least basic drinking water services (%);
+- population using at least basic sanitation services (%).
+
+GDP per capita and health expenditure per capita were log-transformed before regression modelling because of right-skewed distributions.
+
+Female secondary school enrollment and physician density were considered during data assembly but were not included in the main model because of substantial missingness. These variables may be considered for exploratory or supplementary analyses if appropriate.
+
+## Data management
+
+Raw World Bank files were cleaned from wide format to long country-year format. Footer rows, blank rows and non-country entries without valid ISO3 country codes were removed. UNICEF antigen datasets were similarly reshaped from wide to long format. All datasets were standardized to contain `iso3`, `year` and one measurement column, then merged by ISO3 country code and year.
+
+The assembled dataset was restricted to sub-Saharan African countries and to the period 2000–2024. The core complete-case dataset included country-years with non-missing values for the outcome, DTP3, MCV1, Pol3 and the main covariates. Although the assembled panel contains 49 country observations for 2024, current health expenditure per capita is missing for every 2024 observation; therefore, no 2024 observation met the complete-case criteria for the primary models. Smaller 2024 gaps were also present for GDP per capita, basic drinking-water access and basic sanitation access.
+
+## Missing data
+
+Missingness was summarized for all variables. Variables with high missingness were not included in the primary adjusted models. Complete-case analysis was used for the main regression models. This decision was made to preserve transparency and avoid introducing additional modelling assumptions required by multiple imputation, particularly for variables with extensive missingness. Thus, descriptive analyses retain the assembled 2000–2024 panel where data are available, whereas the primary complete-case regression analyses effectively cover 2000–2023.
+
+```{r missingness-table}
+#| label: tbl-missingness
+#| tbl-cap: "Missingness in the final sub-Saharan Africa panel dataset."
+
+missingness <- safe_read_csv(file.path(table_path, "supplementary_table_s1_missingness.csv"))
+pretty_table(missingness)
+```
+
+## Statistical analysis
+
+Descriptive statistics were used to summarize outcome, exposure and covariate distributions. Continuous variables were summarized using means, standard deviations, medians, minima and maxima. Trends in mean under-five mortality and mean immunization coverage were plotted by year.
+
+Spearman correlation coefficients were calculated to assess monotonic pairwise associations among outcome, exposure and covariate variables. Spearman correlation was chosen because some variables were skewed and because relationships between socioeconomic indicators and mortality may be non-linear.
+
+Multivariable linear regression models were fitted with under-five mortality rate as the dependent variable. Antigen indicators were modeled separately to avoid multicollinearity. The primary adjusted model estimated the association between DTP3 coverage and under-five mortality, adjusting for log GDP per capita, log health expenditure per capita, total fertility rate, basic water access and basic sanitation access. Equivalent separate models were fitted for MCV1 and Pol3.
+
+Country-clustered standard errors were used to account for repeated observations within countries over time. Country fixed-effects models were used to account for time-invariant unobserved differences between countries. Country and year fixed-effects models were additionally fitted to account for shared secular trends across countries.
+
+Sensitivity analyses included: (1) restricted models excluding relatively wealthier or small sub-Saharan African countries; and (2) lagged DTP3 models in which DTP3 coverage in year *t* was used to predict under-five mortality in year *t + 1*. Variance inflation factors were calculated for the simultaneous multi-antigen model to assess multicollinearity.
+
+Analyses were conducted using R version 4.4.2. Key packages included `tidyverse`, `readxl`, `fixest`, `broom`, `modelsummary`, `ggplot2` and related packages.
+
+# Results
+
+## Study sample and missingness
+
+The assembled sub-Saharan Africa panel included 49 countries and 1,225 country-year observations from 2000 to 2024. The primary complete-case analysis included 1,108 observations from 48 countries, spanning 2000 to 2023. South Sudan was included in the assembled panel but did not contribute to the primary complete-case models because it had no complete observations across all required model variables. All 49 country observations in 2024 lacked current health expenditure per capita, a required covariate, so none could enter the primary models; GDP per capita, basic drinking-water access and basic sanitation access also had smaller 2024 gaps. Under-five mortality and fertility were complete in the assembled panel. Missingness was low for the main immunization variables and most primary covariates, whereas physician density (54.2%) and female secondary school enrolment (47.1%) had substantial missingness and were excluded from the primary adjusted models.
+
+## Descriptive characteristics
+
+@tbl-descriptive summarizes the distribution of under-five mortality, immunization coverage and covariates in the complete-case analytic dataset.
+
+```{r table1}
+#| label: tbl-descriptive
+#| tbl-cap: "Descriptive characteristics of the complete-case analytic dataset."
+
+table1 <- safe_read_csv(file.path(table_path, "table1_descriptive_characteristics.csv"))
+pretty_table(table1)
+```
+
+Mean under-five mortality was 86.0 deaths per 1,000 live births (standard deviation [SD], 44.9; median, 78.8). Mean coverage was 76.6% for DTP3, 74.1% for MCV1 and 76.1% for Pol3. Immunization coverage and under-five mortality varied substantially across countries and years.
+
+## Trends in under-five mortality and immunization coverage
+
+Figure 1 shows the mean under-five mortality rate across sub-Saharan African countries from 2000 to 2024. The overall trend should be interpreted as an ecological average across countries rather than as the experience of any single country.
+
+```{r fig-u5mr-trend}
+#| label: fig-u5mr-trend
+#| fig-cap: "Mean under-five mortality rate in sub-Saharan Africa, 2000–2024."
+#| out-width: "100%"
+
+safe_include_graphics(file.path(figure_path, "figure1_mean_u5mr_trend.png"))
+```
+
+Figure 2 presents the mean coverage trends for DTP3, MCV1 and Pol3. These trends provide a descriptive overview of routine immunization performance across the region.
+
+```{r fig-vaccine-trends}
+#| label: fig-vaccine-trends
+#| fig-cap: "Mean DTP3, MCV1 and Pol3 coverage in sub-Saharan Africa, 2000–2024."
+#| out-width: "100%"
+
+safe_include_graphics(file.path(figure_path, "figure2_vaccine_coverage_trends.png"))
+```
+
+## Correlation analysis
+
+The Spearman correlation matrix is shown in @tbl-correlations and visualized in @fig-correlation-heatmap. Immunization coverage indicators were expected to be positively correlated with one another and inversely correlated with under-five mortality. Socioeconomic and environmental covariates were also expected to correlate with both vaccine coverage and mortality.
+
+```{r table2}
+#| label: tbl-correlations
+#| tbl-cap: "Spearman correlation matrix for main analytic variables."
+
+table2 <- safe_read_csv(file.path(table_path, "table2_spearman_correlation_matrix.csv"))
+correlation_labels <- c(
+  u5mr = "Under-five mortality", dtp3 = "DTP3 coverage", mcv1 = "MCV1 coverage",
+  pol3 = "Pol3 coverage", gdp_pc = "GDP per capita", health_exp_pc = "Health expenditure",
+  fertility = "Fertility rate", basic_water = "Basic water access",
+  basic_sanitation = "Basic sanitation access"
+)
+table2$variable <- dplyr::recode(table2$variable, !!!correlation_labels)
+names(table2) <- dplyr::recode(names(table2), !!!correlation_labels, .default = names(table2))
+pretty_table(table2)
+```
+
+```{r fig-correlation-heatmap}
+#| label: fig-correlation-heatmap
+#| fig-cap: "Spearman correlation heatmap for outcome, immunization indicators and covariates."
+#| out-width: "100%"
+
+safe_include_graphics(file.path(figure_path, "figure6_spearman_correlation_heatmap.png"))
+```
+
+Variance inflation factors (VIFs) were used to assess multicollinearity among predictors in the simultaneous multi-antigen model. Higher VIF values indicate greater overlap between a predictor and the other covariates, with values above 5 commonly interpreted as evidence of substantial multicollinearity. VIFs from the simultaneous multi-antigen model indicated substantial multicollinearity among vaccine coverage indicators. For this reason, DTP3, MCV1 and Pol3 were interpreted primarily through separate antigen models rather than as mutually adjusted predictors in the same primary model.
+
+```{r vif-table}
+#| label: tbl-vif
+#| tbl-cap: "Variance inflation factors from the simultaneous multi-antigen model."
+
+vif_table <- safe_read_csv(file.path(table_path, "supplementary_table_s2_vif_values.csv"))
+vif_table$variable <- dplyr::recode(vif_table$variable,
+  dtp3 = "DTP3 coverage", mcv1 = "MCV1 coverage", pol3 = "Pol3 coverage",
+  log_gdp_pc = "Log GDP per capita", log_health_exp_pc = "Log health expenditure per capita",
+  fertility = "Fertility rate", basic_water = "Basic water access",
+  basic_sanitation = "Basic sanitation access"
+)
+names(vif_table) <- c("Variable", "Variance inflation factor")
+pretty_table(vif_table)
+```
+
+## Association between DTP3 coverage and under-five mortality
+
+In the primary adjusted model, DTP3 coverage was inversely associated with under-five mortality after adjustment for log GDP per capita, log health expenditure per capita, total fertility rate, basic water access and basic sanitation access. Each 1 percentage-point increase in DTP3 coverage was associated with 0.97 fewer under-five deaths per 1,000 live births (95% CI, -1.30 to -0.64). The estimated coefficient represents the expected change in under-five mortality rate per 1 percentage-point increase in DTP3 coverage.
+
+@fig-dtp3-scatter shows the crude ecological relationship between DTP3 coverage and under-five mortality across country-year observations.
+
+```{r fig-dtp3-scatter}
+#| label: fig-dtp3-scatter
+#| fig-cap: "Association between DTP3 coverage and under-five mortality across country-year observations."
+#| out-width: "100%"
+
+safe_include_graphics(file.path(figure_path, "figure4_dtp3_u5mr_scatter.png"))
+```
+
+## Separate antigen models
+
+@tbl-adjusted-antigen-models presents adjusted models for DTP3, MCV1 and Pol3 fitted separately. All three coverage indicators were inversely associated with under-five mortality: DTP3, -0.97 (95% CI, -1.30 to -0.64); MCV1, -0.83 (95% CI, -1.18 to -0.48); and Pol3, -0.89 (95% CI, -1.22 to -0.56) deaths per 1,000 live births per 1 percentage-point increase in coverage. Separate modeling was used because the three antigen coverage indicators are conceptually related and statistically correlated.
+
+```{r table3}
+#| label: tbl-adjusted-antigen-models
+#| tbl-cap: "Adjusted associations between vaccine coverage indicators and under-five mortality."
+
+table3 <- safe_read_csv(file.path(table_path, "table3_adjusted_antigen_models.csv"))
+pretty_table(format_model_table(table3))
+```
+
+*Note:* Estimates are changes in under-five deaths per 1,000 live births; 95% confidence intervals are in brackets. Significance codes: `+` *p* < 0.10, `*` *p* < 0.05, `**` *p* < 0.01 and `***` *p* < 0.001.
+
+## Fixed-effects models
+
+Country and year fixed-effects models were used to evaluate whether within-country changes in immunization coverage were associated with within-country changes in under-five mortality over time, while accounting for shared secular trends. DTP3 and Pol3 remained inversely associated with under-five mortality (DTP3, -0.28; 95% CI, -0.56 to -0.00; Pol3, -0.24; 95% CI, -0.47 to -0.01). Put more tangibly, a 10-percentage-point increase in DTP3 coverage within a country was associated with approximately 2.8 fewer under-five deaths per 1,000 live births. The MCV1 estimate was not statistically distinguishable from the null (-0.13; 95% CI, -0.38 to 0.12). @tbl-fe-models presents the fixed-effects models for the separate antigen indicators.
+
+```{r table4}
+#| label: tbl-fe-models
+#| tbl-cap: "Country and year fixed-effects models for vaccine coverage indicators and under-five mortality."
+
+table4 <- safe_read_csv(file.path(table_path, "table4_fixed_effects_antigen_models.csv"))
+pretty_table(format_model_table(table4))
+```
+
+*Note:* Estimates are changes in under-five deaths per 1,000 live births; 95% confidence intervals are in brackets. Significance codes: `+` *p* < 0.10, `*` *p* < 0.05, `**` *p* < 0.01 and `***` *p* < 0.001. Country and year fixed effects are included in every model.
+
+## Sensitivity analyses
+
+Sensitivity analyses examined whether findings were robust to alternative specifications. These included restricted analyses excluding Botswana, Gabon, Mauritius, Namibia, Seychelles and South Africa. Botswana, Gabon, Namibia and South Africa were excluded because of their relatively higher income levels within the region, while Mauritius and Seychelles were excluded because they are small island states with comparatively high socioeconomic indicators and distinct health-system contexts. Lagged models were also fitted in which DTP3 coverage predicted next-year under-five mortality. The adjusted DTP3 estimates remained similar in the restricted (-0.99; 95% CI, -1.34 to -0.64) and lagged (-0.99; 95% CI, -1.33 to -0.65) analyses. Results are shown in @tbl-sensitivity-models.
+
+```{r table5}
+#| label: tbl-sensitivity-models
+#| tbl-cap: "Sensitivity analyses for the association between DTP3 coverage and under-five mortality."
+
+table5 <- safe_read_csv(file.path(table_path, "table5_dtp3_sensitivity_models.csv"))
+pretty_table(format_model_table(table5))
+```
+
+*Note:* Estimates are changes in under-five deaths per 1,000 live births; 95% confidence intervals are in brackets. The restricted analysis excludes Botswana, Gabon, Mauritius, Namibia, Seychelles and South Africa. Significance codes: `+` *p* < 0.10, `*` *p* < 0.05, `**` *p* < 0.01 and `***` *p* < 0.001.
+
+## Model diagnostics and additional visualizations
+
+Predicted and observed under-five mortality values from the main adjusted DTP3 model are shown in @fig-predicted-observed. Points clustered broadly around the 45-degree reference line, indicating that the model reproduced the overall pattern of observed under-five mortality reasonably well. However, the scatter around the line, particularly at higher mortality values, indicates that substantial country-year variation remained unexplained by the included covariates.
+
+```{r fig-predicted-observed}
+#| label: fig-predicted-observed
+#| fig-cap: "Predicted versus observed under-five mortality from the main adjusted DTP3 model."
+#| out-width: "85%"
+
+safe_include_graphics(file.path(figure_path, "figure13_predicted_vs_observed_u5mr.png"))
+```
+
+An additional exploratory visualization is provided to support interpretation of the relationship between DTP3 coverage, under-five mortality and national income.
+
+```{r fig-bubble}
+#| label: fig-bubble
+#| fig-cap: "DTP3 coverage, under-five mortality and GDP per capita. Bubble size represents GDP per capita."
+#| out-width: "100%"
+
+safe_include_graphics(file.path(figure_path, "figure14_dtp3_u5mr_gdp_bubble_plot.png"))
+```
+
+# Discussion
+
+## Principal findings
+
+This ecological panel study examined the association between routine childhood immunization coverage and under-five mortality across sub-Saharan Africa in an assembled 2000–2024 panel. The main complete-case models, however, used observations through 2023 because of missing 2024 covariate data. The main finding was that higher DTP3 coverage was consistently associated with lower under-five mortality across multiple model specifications. The association persisted after adjustment for socioeconomic, demographic and environmental covariates and remained evident in fixed-effects and sensitivity analyses.
+
+The direction and robustness of the DTP3 association support the interpretation of DTP3 coverage as both a vaccine-specific indicator and a broader marker of routine immunization system performance. Because DTP3 requires completion of a multi-dose schedule, it may reflect health-system continuity, caregiver access to services, vaccine supply reliability and the ability of national immunization programs to retain children in preventive care.
+
+## Interpretation of antigen-specific findings
+
+DTP3, MCV1 and Pol3 were strongly related conceptually and statistically. The multicollinearity observed in simultaneous multi-antigen models supports the decision to interpret separate antigen models rather than over-interpreting mutually adjusted coefficients. In such settings, the coefficient for one vaccine indicator adjusted for another may not represent a meaningful policy contrast because high-performing immunization systems tend to deliver multiple vaccines well.
+
+DTP3 was retained as the primary exposure because it is commonly used as a global tracer of routine immunization performance. MCV1 and Pol3 analyses should be interpreted as secondary evidence about broader routine immunization coverage rather than as direct causal comparisons between individual antigens.
+
+## Fertility and child survival
+
+Total fertility rate was positively associated with under-five mortality across the main adjusted models, fixed-effects models and sensitivity analyses. In the primary adjusted DTP3 model, each additional birth per woman was associated with 13.4 additional under-five deaths per 1,000 live births (95% CI, 5.5 to 21.3), after adjustment for immunization coverage, income, health expenditure, water access and sanitation access. The association was larger in the country-and-year fixed-effects model, suggesting that within-country changes in fertility remained closely related to under-five mortality after accounting for stable country differences and shared year effects.
+
+This finding supports the interpretation that child survival in sub-Saharan Africa is shaped by demographic context as well as by immunization and broader socioeconomic conditions. Higher fertility may reflect and contribute to greater household resource constraints, shorter birth intervals, higher maternal and child health-service demand, and reduced capacity of health systems to deliver timely preventive and curative care; prior evidence has linked short and long preceding birth intervals with increased child mortality risk.[@kozuki2013birthintervals] Because this was an ecological analysis, the fertility coefficient should not be interpreted as an individual-level causal effect. Rather, it indicates that country-years with higher fertility also tended to have higher under-five mortality, even after adjustment for several major covariates.
+
+## Comparison with previous literature
+
+The findings are consistent with established evidence that immunization contributes substantially to reductions in vaccine-preventable morbidity and mortality.[@gavi_impact; @who_ia2030] Vaccination programs have been central to global child survival strategies, and DTP3 coverage has long been used to monitor routine immunization performance. The present study adds to this literature by quantifying long-term ecological associations across sub-Saharan African countries over a 25-year period using standardized public data sources.
+
+The results also align with broader evidence that child survival is shaped by multiple determinants beyond immunization alone, including fertility, socioeconomic conditions, health expenditure and environmental health infrastructure. Access to basic water services also appeared important in some fixed-effects specifications, consistent with evidence linking water and sanitation conditions to child health outcomes and infectious disease burden.[@headey2019wash]
+
+## Policy implications
+
+These findings support continued investment in routine immunization programs as part of broader child survival strategies in sub-Saharan Africa. Strengthening DTP3 coverage may require improving vaccine supply chains, expanding service access, reducing missed opportunities, supporting community outreach, improving data systems and addressing conflict-related and geographic barriers to vaccination.
+
+However, immunization should not be viewed in isolation. The persistence of associations involving fertility, water and broader socioeconomic indicators suggests that reductions in under-five mortality require integrated strategies combining immunization, maternal and child health services, reproductive health, nutrition, water and sanitation, and health-system strengthening.
+
+## Strengths
+
+This study has several strengths. First, it used a long 25-year study period, allowing assessment of trends across both Millennium Development Goal and Sustainable Development Goal eras. Second, it included multiple sub-Saharan African countries, increasing regional relevance. Third, it used standardized, publicly available datasets from UNICEF and the World Bank, supporting reproducibility. Fourth, it evaluated multiple immunization indicators while addressing multicollinearity through separate antigen models. Fifth, it used country and year fixed-effects models to account for unobserved country-level heterogeneity and shared time trends. Finally, sensitivity analyses assessed robustness to alternative assumptions.
+
+## Limitations
+
+This study also has important limitations. First, the ecological design means that associations were estimated at the country-year level and cannot be interpreted as individual-level causal effects. The ecological fallacy remains possible. Second, residual confounding cannot be excluded. Although the models adjusted for major socioeconomic, demographic and environmental covariates, other factors such as conflict, nutrition, maternal education, health-worker distribution, governance, service quality and subnational inequities were not fully captured. Third, the assembled panel extends to 2024, but the primary complete-case models do not include 2024 because current health expenditure per capita was missing for all 49 country observations in that year; the primary model estimates therefore apply to 2000–2023. Fourth, some potentially relevant variables, including physician density and female secondary school enrollment, had substantial missingness and were excluded from primary models. Fifth, measurement error is possible because the study relied on modeled or estimated secondary data sources. Sixth, linear models may not fully capture complex non-linear relationships between vaccine coverage, socioeconomic development and child mortality. Seventh, the association between DTP3 coverage and mortality may partly reflect broader health-system strength rather than the direct biological effect of DTP-containing vaccines alone.
+
+## Implications for further research
+
+Future research could extend this work using subnational data, individual-level household survey data or mixed-methods approaches. Analyses incorporating conflict exposure, nutrition indicators, health facility density, vaccine stockout data, maternal education and subnational inequities could provide more granular insight. Future studies could also evaluate DTP1-DTP3 dropout, zero-dose children and post-2020 disruptions in immunization services.
+
+# Conclusions
+
+Routine childhood immunization coverage, particularly DTP3 coverage, was inversely associated with under-five mortality in sub-Saharan Africa. The assembled data covered 2000–2024, while the primary complete-case estimates covered 2000–2023 because required 2024 covariate data were unavailable. The association remained evident after adjustment for key covariates and in fixed-effects and sensitivity analyses. These findings support continued investment in routine immunization systems as part of integrated strategies to reduce child mortality in the region.
+
+# Declarations
+
+## Ethics approval and consent to participate
+
+This study used publicly available aggregated country-level datasets and did not involve individual participants or identifiable personal information. Ethics approval and informed consent were therefore not required.
+
+## Consent for publication
+
+Not applicable.
+
+## Availability of data and materials
+
+The datasets used in this study are publicly available from UNICEF Data and the World Bank World Development Indicators database. The cleaned analytic dataset, analysis scripts and supporting materials are publicly available in the project GitHub repository: https://github.com/henrymuhumuza/under-5-mortality-and-immunization.
+
+## Competing interests
+
+The author declares no competing interests.
+
+## Funding
+
+No external funding was received for this study.
+
+## Author contributions
+
+HM conceived the study, curated and cleaned the data, conducted statistical analyses, interpreted the findings and drafted the manuscript.
+
+## Acknowledgements
+
+The author acknowledges UNICEF, WHO and the World Bank for maintaining publicly available global health datasets.
+
+# Supplementary material
+
+## Supplementary Figure S1: Under-five mortality distribution by period
+
+The distribution of under-five mortality across countries shifted over time. To make the pattern easier to read, country-year observations are grouped into five-year periods.
+
+```{r fig-u5mr-boxplot}
+#| label: fig-u5mr-boxplot
+#| fig-cap: "Distribution of under-five mortality across sub-Saharan African countries by five-year period."
+#| out-width: "100%"
+
+safe_include_graphics(file.path(figure_path, "figure3_u5mr_boxplot_by_year.png"))
+```
+
+## Supplementary Table S3: Country list
+
+```{r country-list}
+#| label: tbl-country-list
+#| tbl-cap: "Countries included in the sub-Saharan Africa panel."
+
+country_list <- safe_read_csv(file.path(table_path, "supplementary_table_s3_country_list.csv"))
+pretty_table(country_list)
+```
+
+## Supplementary Table S4: Full model coefficients
+
+```{r all-coefficients}
+#| label: tbl-all-coefficients
+#| tbl-cap: "Full model coefficient estimates."
+
+all_coefficients <- safe_read_csv(file.path(table_path, "supplementary_table_s4_all_model_coefficients.csv"))
+all_coefficients$term <- dplyr::recode(all_coefficients$term,
+  `(Intercept)` = "Intercept",
+  dtp3 = "DTP3 coverage",
+  mcv1 = "MCV1 coverage",
+  pol3 = "Pol3 coverage",
+  log_gdp_pc = "Log GDP per capita",
+  log_health_exp_pc = "Log health expenditure per capita",
+  fertility = "Total fertility rate",
+  basic_water = "Basic water access",
+  basic_sanitation = "Basic sanitation access"
+)
+names(all_coefficients) <- dplyr::recode(names(all_coefficients),
+  term = "Term",
+  estimate = "Estimate",
+  std.error = "Standard error",
+  statistic = "Statistic",
+  p.value = "P value",
+  conf.low = "95% CI lower",
+  conf.high = "95% CI upper",
+  model = "Model",
+  .default = names(all_coefficients)
+)
+pretty_table(all_coefficients)
+```
+
+# References
+
