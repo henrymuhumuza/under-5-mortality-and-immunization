@@ -230,8 +230,6 @@ fig_pred_obs <- ggplot(prediction_df, aes(x = predicted_u5mr, y = u5mr)) +
   geom_point(alpha = 0.45) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
   labs(
-    title = "Predicted versus observed under-five mortality",
-    subtitle = "Main adjusted DTP3 model",
     x = "Predicted U5MR",
     y = "Observed U5MR"
   ) +
@@ -257,8 +255,6 @@ fig_bubble <- ggplot(main_df, aes(x = dtp3, y = u5mr)) +
     range = c(1, 8)
   ) +
   labs(
-    title = "DTP3 coverage, under-five mortality and GDP per capita",
-    subtitle = "Bubble size represents GDP per capita",
     x = "DTP3 coverage (%)",
     y = "Under-five mortality rate per 1,000 live births",
     size = "GDP per capita"

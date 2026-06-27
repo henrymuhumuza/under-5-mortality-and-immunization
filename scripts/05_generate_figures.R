@@ -59,10 +59,13 @@ write_csv(
 fig1 <- ggplot(yearly_summary, aes(x = year, y = mean_u5mr)) +
   geom_line(linewidth = 1.1) +
   geom_point(size = 2) +
+  scale_x_continuous(
+    breaks = seq(2000, 2025, 5),
+    limits = c(2000, 2025),
+    expand = expansion(mult = c(0.01, 0.06))
+  ) +
   labs(
-    title = "Mean under-five mortality rate in sub-Saharan Africa, 2000–2024",
-    subtitle = "Country-year ecological panel based on World Bank estimates",
-    x = "Five-year period",
+    x = "Year",
     y = "Under-five mortality rate per 1,000 live births"
   ) +
   theme_minimal(base_size = 13)
@@ -99,15 +102,11 @@ fig2 <- ggplot(vaccine_trends, aes(x = year, y = coverage, color = antigen, line
   geom_line(linewidth = 1.1) +
   geom_point(size = 1.8) +
   labs(
-    title = "Mean routine childhood immunization coverage in sub-Saharan Africa, 2000–2024",
-    subtitle = "DTP3, MCV1 and Pol3 coverage estimates from UNICEF",
     x = "Year",
     y = "Coverage (%)",
     color = "Antigen",
     linetype = "Antigen"
   ) +
-  ggtitle("Mean routine childhood immunization coverage, 2000-2024",
-          subtitle = "DTP3, MCV1 and Pol3 coverage estimates from UNICEF") +
   scale_color_manual(values = c("DTP3" = "#1b9e77", "MCV1" = "#d95f02", "Pol3" = "#7570b3")) +
   scale_y_continuous(limits = c(55, 85), breaks = seq(55, 85, 5)) +
   theme_minimal(base_size = 13)
@@ -137,13 +136,10 @@ u5mr_by_period <- immunization_panel %>%
 fig3 <- ggplot(u5mr_by_period, aes(x = period, y = u5mr)) +
   geom_boxplot(outlier.alpha = 0.4) +
   labs(
-    title = "Distribution of under-five mortality across sub-Saharan African countries",
-    subtitle = "Boxplots by year, 2000–2024",
-    x = "Year",
+    x = "Five-year period",
     y = "Under-five mortality rate per 1,000 live births"
   ) +
-  theme_minimal(base_size = 12) +
-  labs(subtitle = "Country-year observations grouped into five-year periods, 2000-2024")
+  theme_minimal(base_size = 12)
 
 ggsave(
   filename = file.path(figures_dir, "figure3_u5mr_boxplot_by_year.png"),
@@ -161,8 +157,6 @@ fig4 <- ggplot(immunization_panel, aes(x = dtp3, y = u5mr)) +
   geom_point(alpha = 0.45) +
   geom_smooth(method = "loess", se = TRUE) +
   labs(
-    title = "Association between DTP3 coverage and under-five mortality",
-    subtitle = "Each point represents one country-year observation",
     x = "DTP3 coverage (%)",
     y = "Under-five mortality rate per 1,000 live births"
   ) +
@@ -276,8 +270,7 @@ corrplot(
   tl.cex = 0.85,
   tl.col = "black",
   diag = FALSE,
-  title = "Spearman correlation matrix",
-  mar = c(0, 0, 2, 0)
+  mar = c(0, 0, 0, 0)
 )
 
 dev.off()

@@ -376,7 +376,7 @@ Figure 1 shows the mean under-five mortality rate across sub-Saharan African cou
 
 ```{r fig-u5mr-trend}
 #| label: fig-u5mr-trend
-#| fig-cap: "Mean under-five mortality rate in sub-Saharan Africa, 2000–2024."
+#| fig-cap: "Mean under-five mortality rate in sub-Saharan Africa, 2000-2024. Annual values are ecological country-level means across the included sub-Saharan African countries. Under-five mortality is expressed as deaths before age five per 1,000 live births."
 #| out-width: "100%"
 
 safe_include_graphics(file.path(figure_path, "figure1_mean_u5mr_trend.png"))
@@ -386,7 +386,7 @@ Figure 2 presents the mean coverage trends for DTP3, MCV1 and Pol3. These trends
 
 ```{r fig-vaccine-trends}
 #| label: fig-vaccine-trends
-#| fig-cap: "Mean DTP3, MCV1 and Pol3 coverage in sub-Saharan Africa, 2000–2024."
+#| fig-cap: "Mean DTP3, MCV1 and Pol3 coverage in sub-Saharan Africa, 2000-2024. Annual values are ecological country-level means across included countries. Coverage estimates are percentages of the target population receiving each vaccine dose, based on UNICEF immunization coverage data."
 #| out-width: "100%"
 
 safe_include_graphics(file.path(figure_path, "figure2_vaccine_coverage_trends.png"))
@@ -414,7 +414,7 @@ pretty_table(table2)
 
 ```{r fig-correlation-heatmap}
 #| label: fig-correlation-heatmap
-#| fig-cap: "Spearman correlation heatmap for outcome, immunization indicators and covariates."
+#| fig-cap: "Spearman correlations among outcome, immunization indicators and covariates. Spearman rank correlations were calculated using pairwise complete country-year observations. Variables include under-five mortality, immunization coverage indicators and socioeconomic, demographic and environmental covariates used in the analytic models."
 #| out-width: "100%"
 
 safe_include_graphics(file.path(figure_path, "figure6_spearman_correlation_heatmap.png"))
@@ -445,7 +445,7 @@ In the primary adjusted model, DTP3 coverage was inversely associated with under
 
 ```{r fig-dtp3-scatter}
 #| label: fig-dtp3-scatter
-#| fig-cap: "Association between DTP3 coverage and under-five mortality across country-year observations."
+#| fig-cap: "DTP3 coverage and under-five mortality. Each point represents one country-year observation in the assembled panel. The smoothed curve summarizes the crude ecological relationship between DTP3 coverage and under-five mortality before covariate adjustment."
 #| out-width: "100%"
 
 safe_include_graphics(file.path(figure_path, "figure4_dtp3_u5mr_scatter.png"))
@@ -499,7 +499,7 @@ Predicted and observed under-five mortality values from the main adjusted DTP3 m
 
 ```{r fig-predicted-observed}
 #| label: fig-predicted-observed
-#| fig-cap: "Predicted versus observed under-five mortality from the main adjusted DTP3 model."
+#| fig-cap: "Predicted versus observed under-five mortality. Points compare fitted values from the main adjusted DTP3 model with observed under-five mortality. The dashed diagonal marks perfect agreement between predicted and observed values."
 #| out-width: "85%"
 
 safe_include_graphics(file.path(figure_path, "figure13_predicted_vs_observed_u5mr.png"))
@@ -509,7 +509,7 @@ An additional exploratory visualization is provided to support interpretation of
 
 ```{r fig-bubble}
 #| label: fig-bubble
-#| fig-cap: "DTP3 coverage, under-five mortality and GDP per capita. Bubble size represents GDP per capita."
+#| fig-cap: "DTP3 coverage, under-five mortality and GDP per capita. Each point represents one complete-case country-year observation. The smoothed curve summarizes the crude ecological relationship between DTP3 coverage and under-five mortality while displaying variation in national income."
 #| out-width: "100%"
 
 safe_include_graphics(file.path(figure_path, "figure14_dtp3_u5mr_gdp_bubble_plot.png"))
@@ -601,7 +601,7 @@ The distribution of under-five mortality across countries shifted over time. To 
 
 ```{r fig-u5mr-boxplot}
 #| label: fig-u5mr-boxplot
-#| fig-cap: "Distribution of under-five mortality across sub-Saharan African countries by five-year period."
+#| fig-cap: "Distribution of under-five mortality by five-year period. Boxplots summarize country-year observations within each five-year period. Under-five mortality is expressed as deaths before age five per 1,000 live births."
 #| out-width: "100%"
 
 safe_include_graphics(file.path(figure_path, "figure3_u5mr_boxplot_by_year.png"))
