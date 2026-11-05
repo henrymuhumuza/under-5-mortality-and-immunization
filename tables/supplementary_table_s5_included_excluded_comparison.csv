@@ -1,0 +1,3 @@
+sample,observations,countries,min_year,max_year,u5mr_mean,u5mr_missing,dtp3_mean,dtp3_missing,fertility_mean,fertility_missing,gdp_pc_mean,gdp_pc_missing,health_exp_pc_mean,health_exp_pc_missing,basic_water_mean,basic_water_missing,basic_sanitation_mean,basic_sanitation_missing
+Excluded from primary model,117,49,2000,2024,91.46410256410256,0,71.64150943396227,11,4.629142504273505,0,2252.100240999999,30,78.94939817714285,89,60.223417224760006,29,33.96976446906995,32
+Included in primary model,1108,48,2000,2023,86.03754512635379,0,76.62454873646209,0,4.762227249097473,0,2079.4771087810427,0,99.2434481863899,0,63.74036447676012,0,34.662503067165,0

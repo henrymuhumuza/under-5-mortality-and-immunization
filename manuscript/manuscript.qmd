@@ -1,4 +1,4 @@
----
+﻿---
 title: "Association Between Routine Childhood Immunization Coverage and Under-Five Mortality in Sub-Saharan Africa: An Ecological Panel Study, 2000–2024"
 author:
   - "Henry Muhumuza¹*"
@@ -326,6 +326,8 @@ The assembled dataset was restricted to sub-Saharan African countries and to the
 
 ## Missing data
 
+To assess selection from complete-case analysis, we compared included and excluded country-year observations (Supplementary Table S5). We also repeated the fixed-effects analysis omitting health expenditure, both in the matched 2000–2023 period and with 2024 retained (Supplementary Table S6).
+
 Missingness was summarized for all variables. Variables with high missingness were not included in the primary adjusted models. Complete-case analysis was used for the main regression models. This decision was made to preserve transparency and avoid introducing additional modelling assumptions required by multiple imputation, particularly for variables with extensive missingness. Thus, descriptive analyses retain the assembled 2000–2024 panel where data are available, whereas the primary complete-case regression analyses effectively cover 2000–2023.
 
 ```{r missingness-table}
@@ -338,6 +340,8 @@ pretty_table(missingness)
 
 ## Statistical analysis
 
+The continuous under-five mortality outcome was modeled on its original scale so coefficients could be interpreted as absolute differences in deaths per 1,000 live births. A quadratic DTP3 term was included as a sensitivity check for material departure from linearity. All estimates are interpreted as associations; this ecological observational design does not support causal inference.
+
 Descriptive statistics were used to summarize outcome, exposure and covariate distributions. Continuous variables were summarized using means, standard deviations, medians, minima and maxima. Trends in mean under-five mortality and mean immunization coverage were plotted by year.
 
 Spearman correlation coefficients were calculated to assess monotonic pairwise associations among outcome, exposure and covariate variables. Spearman correlation was chosen because some variables were skewed and because relationships between socioeconomic indicators and mortality may be non-linear.
@@ -346,6 +350,8 @@ Multivariable linear regression models were fitted with under-five mortality rat
 
 Country-clustered standard errors were used to account for repeated observations within countries over time. Country fixed-effects models were used to account for time-invariant unobserved differences between countries. Country and year fixed-effects models were additionally fitted to account for shared secular trends across countries.
 
+In added robustness analyses, Driscoll–Kraay standard errors allowed serial and cross-sectional dependence; two-way clustered standard errors and country-specific linear time trends were also evaluated.
+
 Sensitivity analyses included: (1) restricted models excluding relatively wealthier or small sub-Saharan African countries; and (2) lagged DTP3 models in which DTP3 coverage in year *t* was used to predict under-five mortality in year *t + 1*. Variance inflation factors were calculated for the simultaneous multi-antigen model to assess multicollinearity.
 
 Analyses were conducted using R version 4.4.2. Key packages included `tidyverse`, `readxl`, `fixest`, `broom`, `modelsummary`, `ggplot2` and related packages.
@@ -353,6 +359,8 @@ Analyses were conducted using R version 4.4.2. Key packages included `tidyverse`
 # Results
 
 ## Study sample and missingness
+
+Supplementary Table S5 compares country-year observations included in and excluded from the complete-case primary model. In a sensitivity analysis omitting health expenditure, 1,179 observations were available through 2024 (Supplementary Table S6), compared with 1,108 observations in the primary complete-case analysis.
 
 The assembled sub-Saharan Africa panel included 49 countries and 1,225 country-year observations from 2000 to 2024. The primary complete-case analysis included 1,108 observations from 48 countries, spanning 2000 to 2023. South Sudan was included in the assembled panel but did not contribute to the primary complete-case models because it had no complete observations across all required model variables. All 49 country observations in 2024 lacked current health expenditure per capita, a required covariate, so none could enter the primary models; GDP per capita, basic drinking-water access and basic sanitation access also had smaller 2024 gaps. Under-five mortality and fertility were complete in the assembled panel. Missingness was low for the main immunization variables and most primary covariates, whereas physician density (54.2%) and female secondary school enrolment (47.1%) had substantial missingness and were excluded from the primary adjusted models.
 
@@ -481,6 +489,10 @@ pretty_table(format_model_table(table4))
 
 ## Sensitivity analyses
 
+The two-way fixed-effects DTP3 estimate was similar with Driscoll–Kraay standard errors (-0.28 deaths per 1,000 live births per percentage-point higher coverage; 95% CI, -0.38 to -0.19) and two-way clustered standard errors (-0.28; 95% CI, -0.55 to -0.01). With country-specific linear trends, the estimate was attenuated and included the null (-0.15; 95% CI, -0.32 to 0.03). In prospective models using Driscoll–Kraay standard errors, the association was evident at one year (-0.28; 95% CI, -0.40 to -0.16) and two years (-0.20; 95% CI, -0.37 to -0.02), while the three-year estimate included the null (-0.15; 95% CI, -0.37 to 0.07). These analyses are associations and should not be interpreted as causal effects.
+
+The quadratic DTP3 term was positive and statistically distinguishable from zero (0.005; 95% CI, 0.0003 to 0.0101; Supplementary Table S8), indicating that the linear specification is an interpretable summary rather than a complete description of the observed ecological relationship.
+
 Sensitivity analyses examined whether findings were robust to alternative specifications. These included restricted analyses excluding Botswana, Gabon, Mauritius, Namibia, Seychelles and South Africa. Botswana, Gabon, Namibia and South Africa were excluded because of their relatively higher income levels within the region, while Mauritius and Seychelles were excluded because they are small island states with comparatively high socioeconomic indicators and distinct health-system contexts. Lagged models were also fitted in which DTP3 coverage predicted next-year under-five mortality. The adjusted DTP3 estimates remained similar in the restricted (-0.99; 95% CI, -1.34 to -0.64) and lagged (-0.99; 95% CI, -1.33 to -0.65) analyses. Results are shown in @tbl-sensitivity-models.
 
 ```{r table5}
@@ -552,6 +564,8 @@ However, immunization should not be viewed in isolation. The persistence of asso
 This study has several strengths. First, it used a long 25-year study period, allowing assessment of trends across both Millennium Development Goal and Sustainable Development Goal eras. Second, it included multiple sub-Saharan African countries, increasing regional relevance. Third, it used standardized, publicly available datasets from UNICEF and the World Bank, supporting reproducibility. Fourth, it evaluated multiple immunization indicators while addressing multicollinearity through separate antigen models. Fifth, it used country and year fixed-effects models to account for unobserved country-level heterogeneity and shared time trends. Finally, sensitivity analyses assessed robustness to alternative assumptions.
 
 ## Limitations
+
+The additional country-specific trend specification attenuated the DTP3 association and its confidence interval included the null; this sensitivity result indicates that residual country-specific temporal changes may influence the primary estimate. Dependence-robust inference does not remove confounding, measurement error, reverse causation, or ecological fallacy.
 
 This study also has important limitations. First, the ecological design means that associations were estimated at the country-year level and cannot be interpreted as individual-level causal effects. The ecological fallacy remains possible. Second, residual confounding cannot be excluded. Although the models adjusted for major socioeconomic, demographic and environmental covariates, other factors such as conflict, nutrition, maternal education, health-worker distribution, governance, service quality and subnational inequities were not fully captured. Third, the assembled panel extends to 2024, but the primary complete-case models do not include 2024 because current health expenditure per capita was missing for all 49 country observations in that year; the primary model estimates therefore apply to 2000–2023. Fourth, some potentially relevant variables, including physician density and female secondary school enrollment, had substantial missingness and were excluded from primary models. Fifth, measurement error is possible because the study relied on modeled or estimated secondary data sources. Sixth, linear models may not fully capture complex non-linear relationships between vaccine coverage, socioeconomic development and child mortality. Seventh, the association between DTP3 coverage and mortality may partly reflect broader health-system strength rather than the direct biological effect of DTP-containing vaccines alone.
 
@@ -647,6 +661,22 @@ names(all_coefficients) <- dplyr::recode(names(all_coefficients),
   .default = names(all_coefficients)
 )
 pretty_table(all_coefficients)
+```
+
+## Supplementary Tables S5--S8: Revision analyses
+
+```{r revision-supplementary-tables}
+#| tbl-cap: "Additional robustness analyses added during revision."
+
+sample_comparison <- safe_read_csv(file.path(table_path, "supplementary_table_s5_included_excluded_comparison.csv"))
+panel_robustness <- safe_read_csv(file.path(table_path, "supplementary_table_s6_panel_robustness.csv"))
+alternative_lags <- safe_read_csv(file.path(table_path, "supplementary_table_s7_alternative_lags.csv"))
+linearity_check <- safe_read_csv(file.path(table_path, "supplementary_table_s8_linearity_check.csv"))
+
+pretty_table(sample_comparison, "Supplementary Table S5. Included versus excluded observations.")
+pretty_table(panel_robustness, "Supplementary Table S6. Panel-data and missing-data robustness checks.", digits = 3)
+pretty_table(alternative_lags, "Supplementary Table S7. Alternative prospective lag structures.", digits = 3)
+pretty_table(linearity_check, "Supplementary Table S8. Quadratic-term check of linearity.", digits = 3)
 ```
 
 # References

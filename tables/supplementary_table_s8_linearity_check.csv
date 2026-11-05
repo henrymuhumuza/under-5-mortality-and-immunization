@@ -1,0 +1,2 @@
+term,estimate,std.error,statistic,p.value,conf.low,conf.high,test,observations
+I(I(dtp3^2)),0.005192979856838958,0.002389430260355337,2.173313003940404,0.04030481708717699,2.5006676418932224e-4,0.010135892949488592,Quadratic DTP3 term in two-way fixed-effects model,1108
